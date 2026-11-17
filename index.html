@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Layer by Layer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* Layout: sticky header, short intro, filter chips, responsive product grid, footer with contact. */
+  :root {
+    --bg: #f6f7f7;
+    --surface: #ffffff;
+    --fg: #14201f;
+    --muted: #5b6b69;
+    --line: #dde3e2;
+    --accent: #0b7a6e;
+    --accent-fg: #ffffff;
+    --img-bg: #e8eeed;
+    --font-display: "Space Grotesk", system-ui, sans-serif;
+    --font-body: "Inter", system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0f1615; --surface: #172120; --fg: #e8f0ee; --muted: #93a6a3;
+      --line: #263331; --accent: #3fc1b0; --accent-fg: #06201c; --img-bg: #1f2c2a;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f1615; --surface: #172120; --fg: #e8f0ee; --muted: #93a6a3;
+    --line: #263331; --accent: #3fc1b0; --accent-fg: #06201c; --img-bg: #1f2c2a;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.55;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  h1, h2, h3 { font-family: var(--font-display); line-height: 1.15; margin: 0; text-wrap: balance; }
+
+  header { border-bottom: 1px solid var(--line); }
+  header .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 16px; }
+  .brand { font-family: var(--font-display); font-weight: 700; font-size: 1.15rem; letter-spacing: -0.01em; }
+  .btn {
+    display: inline-block; font: 500 0.9rem var(--font-body); text-decoration: none; cursor: pointer;
+    background: var(--accent); color: var(--accent-fg); border: 0; border-radius: 6px; padding: 9px 16px;
+  }
+  .btn:hover { filter: brightness(1.08); }
+  .btn.ghost { background: transparent; color: var(--fg); border: 1px solid var(--line); }
+  .btn:focus-visible, .chip:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .intro { padding-block: 48px 24px; }
+  .intro h1 { font-size: clamp(1.9rem, 5vw, 3rem); max-width: 18ch; }
+  .intro p { color: var(--muted); max-width: 55ch; margin: 14px 0 0; }
+
+  .filters { display: flex; flex-wrap: wrap; gap: 8px; padding-block: 16px 24px; }
+  .chip {
+    font: 500 0.85rem var(--font-body); color: var(--fg); background: transparent;
+    border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; cursor: pointer;
+  }
+  .chip[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr)); gap: 20px; padding-bottom: 56px; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; min-width: 0; }
+  .photo { aspect-ratio: 4 / 3; background: var(--img-bg); }
+  .photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .thumbs { display: flex; gap: 6px; padding: 10px 16px 0; overflow-x: auto; }
+  .thumbs button { flex: none; width: 52px; height: 40px; padding: 0; overflow: hidden; background: var(--img-bg); border: 2px solid transparent; border-radius: 4px; cursor: pointer; }
+  .thumbs button[aria-current="true"] { border-color: var(--accent); }
+  .thumbs button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .thumbs img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .body { padding: 16px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+  .row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+  .card h3 { font-size: 1.05rem; }
+  .price { font-family: var(--font-display); font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .desc { color: var(--muted); font-size: 0.92rem; margin: 0; }
+  .specs { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
+  .specs li { font-size: 0.75rem; letter-spacing: 0.03em; text-transform: uppercase; color: var(--muted); border: 1px solid var(--line); border-radius: 4px; padding: 2px 7px; }
+  .card .btn { margin-top: auto; text-align: center; }
+  .body .spacer { flex: 1; }
+
+  footer { border-top: 1px solid var(--line); padding-block: 40px; }
+  footer h2 { font-size: 1.4rem; }
+  footer p { color: var(--muted); margin: 8px 0 16px; }
+  .contacts { display: flex; flex-wrap: wrap; gap: 10px; }
+  .small { font-size: 0.8rem; margin-top: 28px; color: var(--muted); }
+  @media (prefers-reduced-motion: no-preference) { .card { transition: transform .15s ease; } .card:hover { transform: translateY(-2px); } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="brand" id="brand"></div>
+    <a class="btn ghost" href="#contact">Contact</a>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="intro">
+    <h1 id="headline"></h1>
+    <p id="subline"></p>
+  </section>
+
+  <div class="filters" id="filters" role="group" aria-label="Filter by category"></div>
+  <div class="grid" id="grid"></div>
+</main>
+
+<footer id="contact">
+  <div class="wrap">
+    <h2>Interested in something?</h2>
+    <p>Message me with the item name and I will confirm availability, colour options and delivery.</p>
+    <div class="contacts" id="contacts"></div>
+    <p class="small" id="note"></p>
+  </div>
+</footer>
+
+<script>
+/* ============================================================
+   EDIT THIS SECTION ONLY
+   ============================================================ */
+const SHOP = {
+  name: "Pocket Prints",
+  headline: "If you can think it, you can pocket it",
+  subline: "Functional and decorative 3D prints, made to order in PLA and PETG. Pick a piece, choose a colour, and I will print it for you.",
+  currency: "₱",
+  viber: "639176012170",             // country code + number, no + or spaces. Leave "" to hide.
+  email: "thepocketprintsph@gmail.com",        // Leave "" to hide.
+  facebook: "https://www.facebook.com/profile.php?id=61583663416542",    // Leave "" to hide.
+  note: "Colours may vary slightly from photos. Made to order, allow 2 to 4 days."
+};
+
+/* Add, remove or reorder products here.
+   One photo:       image: "https://link-to-photo.jpg"
+   Several photos:  images: ["https://link-1.jpg", "https://link-2.jpg", "https://link-3.jpg"]
+   The first one is the main photo; visitors click the small thumbnails to switch.
+   Links must point straight to the picture file (Imgur, Cloudinary, a GitHub repo, your own host).
+   If a link is empty or broken, a neutral placeholder is shown instead. */
+const PRODUCTS = [
+  { name: "Arcane Cache Deck Boxes", category: "Magic: The Gathering", price: 300,
+    images: ["https://scontent.fmnl17-8.fna.fbcdn.net/v/t39.30808-6/719483368_122141984739122113_4361309495138966926_n.jpg?stp=dst-jpg_tt6&cstp=mx1365x2048&ctp=s1365x2048&_nc_cat=105&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=127cfc&_nc_eui2=AeF5VXAHdYk7tjMy9NsDcPJ4ymMHjkY9a1XKYweORj1rVWosn0i5BxFz5kq-8ot_CXo&_nc_ohc=TZYGOljJvggQ7kNvwHmjzam&_nc_oc=AdoQCO2gf7mFvY6CBgFN5R5l4M3o5wpRAE2C0AAL13V_X8Uzi_1_Jlt_okOi-4Jqgbc&_nc_zt=23&_nc_ht=scontent.fmnl17-8.fna&_nc_gid=7V0cLcnMVSpCCuD5yjnPCA&_nc_ss=7b2a8&oh=00_AQRJvzMWp3SAuf6D7nRPL84gRqTeKKLDXunKTpvslofx2Q&oe=6B021DBA", 
+			"https://scontent.fmnl17-3.fna.fbcdn.net/v/t39.30808-6/721736902_122141985081122113_4122946817277409470_n.jpg?stp=dst-jpg_tt6&cstp=mx1365x1365&ctp=s1365x1365&_nc_cat=109&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=127cfc&_nc_eui2=AeGXhwUPTjqY_97VLHO3EMUNHDEyBf10JUccMTIF_XQlR49ayfp-_05m0Vd3h2ARRkM&_nc_ohc=7zo0UG5F7lQQ7kNvwEeTzPK&_nc_oc=Adrvz0Yxj-rg35ndhDOXapnNcahm_QRsADfCQe4Rf_RzAmdTSUglu-gm86M07jMQIEc&_nc_zt=23&_nc_ht=scontent.fmnl17-3.fna&_nc_gid=F59emH1BAlb2r9N6y1Rp9Q&_nc_ss=7b2a8&oh=00_AQQ6QSXHWB_hAhzr02OT36rw68gwX1ydSVNlBt3k0_12Fg&oe=6B023BCC", 
+			"https://scontent.fmnl17-3.fna.fbcdn.net/v/t39.30808-6/721817715_122141984853122113_5330980566116750396_n.jpg?stp=dst-jpg_tt6&cstp=mx1365x2048&ctp=s1365x2048&_nc_cat=109&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=127cfc&_nc_eui2=AeFX8FyfnqaA_nbf2CX1e1t4lorACDPZR6CWisAIM9lHoOqRjXGBxI3rSvgCMdLOXlw&_nc_ohc=6Krktry5Um4Q7kNvwEY37CN&_nc_oc=AdofWA76mVgRO-xc5jU_4OBbiDhuv13mzrlLqn-PHhx-h-D-yGa-KALVmgWE-gYjsTU&_nc_zt=23&_nc_ht=scontent.fmnl17-3.fna&_nc_gid=F_tigCTp4dUqc-yvLDdNmg&_nc_ss=7b2a8&oh=00_AQR3Tlp80yLcQSoRcAt8BLEBCUrhrrphsACuPw3HnWscmg&oe=6B021EEF"],
+	desc: "Every great deck tells a story. Every legendary commander deserves a vault worthy of its power. \n The Arcane Cache is a 3D-printed treasure chest-inspired deck box designed to keep your favorite decks safe between adventures.", material: "PLA+", size: "" },
+  { name: "Dungeon Coins", category: "Dungeons and dragons : Props", price: 40, 
+  images: ["https://scontent.fmnl17-7.fna.fbcdn.net/v/t39.30808-6/905023818_122161398627122113_7954454614077506402_n.jpg?stp=dst-jpg_tt6&cstp=mx1473x2048&ctp=s1473x2048&_nc_cat=105&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=127cfc&_nc_eui2=AeH-28GyR8W0VtFEhEshSqPp8xMzgf59GebzEzOB_n0Z5tu59B9msiHrf5Rfu8_DJSc&_nc_ohc=E91_p4-LCusQ7kNvwFXvu-n&_nc_oc=AdrnW2oN38nHOtKeh2teGFALNNJ72_OobOWG8-o3ZOHSAzXRmNZMmlthRdq44ksedRU&_nc_zt=23&_nc_ht=scontent.fmnl17-7.fna&_nc_gid=c5zo31aIz9F5WDET58a9nQ&_nc_ss=7b2a8&oh=00_AQTUIXh1R39tq1655Yr-nXr60CItg4dmaUp2XpDUKbO8dw&oe=6B02211F",
+			"https://scontent.fmnl17-7.fna.fbcdn.net/v/t39.30808-6/905072597_122161398585122113_6254377286739080038_n.jpg?stp=dst-jpg_tt6&cstp=mx1446x2048&ctp=s1446x2048&_nc_cat=108&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=127cfc&_nc_eui2=AeHwZE_ttKIhwYyrnzc_LBVX6DSr19Dtkq3oNKvX0O2SrbY_15SOEo-N1mhwlK_mMu0&_nc_ohc=5bucaBhkBQYQ7kNvwEI4IB1&_nc_oc=AdqkAtPaZb7y-oUDMkIiawwC-BOfZWx1lFcK3lcMtpKc-yduMrR0hoLZsNkD4lGd734&_nc_zt=23&_nc_ht=scontent.fmnl17-7.fna&_nc_gid=lUjFke6sU_DH3M8nS-d2XA&_nc_ss=7b2a8&oh=00_AQSFeWdd09nTCjZfTgMs9DOIdF2EJQU0uKeGAjafJfT9-Q&oe=6B024A04"],
+    desc: "Fantasy-inspired gold coins featuring intricate embossed crests and ornate detailing. Perfect as collectible tokens, D&D currency, or immersive tabletop RPG accessories. Available in classic antique gold and striking emerald-and-gold finishes.", material: "PLA", size: "5 cm wide" },
+	{ name: "Mother of Dragons", category: "Miniatures", price: 7000, 
+	images: ["https://scontent.fmnl17-2.fna.fbcdn.net/v/t39.30808-6/914453667_122161904643122113_3559819726167140672_n.jpg?stp=dst-jpg_tt6&cstp=mx1536x2048&ctp=s1536x2048&_nc_cat=108&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=127cfc&_nc_ohc=qWKoWpY2HO4Q7kNvwGjNEnu&_nc_oc=AdoemvUmPNAjQDls87ho6nU7JaqyrKAohkZ-hm35mX4TAAzAg5oEXlc0hg-GvB6QVEw&_nc_zt=23&_nc_ht=scontent.fmnl17-2.fna&_nc_gid=_5m1Kih_1D4OvwWyq08T-Q&_nc_ss=7b2a8&oh=00_AQSJiu4PbvevLG7JmJ5WglETmFiWVspgjHk18GA68mmarA&oe=6B026888",
+	"https://scontent.fmnl17-5.fna.fbcdn.net/v/t39.30808-6/911884516_122161904631122113_4787124780641152879_n.jpg?stp=dst-jpg_tt6&cstp=mx1536x2048&ctp=s1536x2048&_nc_cat=106&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=127cfc&_nc_ohc=IjCk8sRsrPIQ7kNvwGBrHuf&_nc_oc=AdrNAsySlhcSPuqp9b6ho3wpi3laY1bCMBSjPQkaLZMjAUE8YJV59iVw1wE8AHnjUYc&_nc_zt=23&_nc_ht=scontent.fmnl17-5.fna&_nc_gid=fTU5HtQkMBSNFvmBJO7OUA&_nc_ss=7b2a8&oh=00_AQRhTi2-JnA2jusdlzJc-hiB_-qVz7oJoWyXS2IyqB61IQ&oe=6B027560",
+	"https://scontent.fmnl17-2.fna.fbcdn.net/v/t39.30808-6/915101702_122161904637122113_1922708267733286195_n.jpg?stp=dst-jpg_tt6&cstp=mx1536x2048&ctp=s1536x2048&_nc_cat=108&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=127cfc&_nc_ohc=VeTOHh_rUZAQ7kNvwEWcTW5&_nc_oc=Adpf5geoKM2el9wurhoz9FiL0YA_P61XM8T1N0WSlFDmsV1zg4KAqqRWtUVfHINgzVU&_nc_zt=23&_nc_ht=scontent.fmnl17-2.fna&_nc_gid=i2GoCfIS4aDh8biv-iksJQ&_nc_ss=7b2a8&oh=00_AQQxIA1xw8wiTTpstARLvpOQMNTwAipyfYouSpiyCmsdZw&oe=6B025543"],
+	desc: "A mighty five-headed dragon, ready to bring chaos and destruction to your tabletop!", material: "Craftsman DLP Resin", size: "32cm" },
+{ name: "Chubby Dragon", category: "Miniatures", price: 500, image: "https://scontent.fmnl17-3.fna.fbcdn.net/v/t39.30808-6/914770198_122161906371122113_6953298617728767391_n.jpg?stp=dst-jpg_tt6&cstp=mx1080x1920&ctp=s1080x1920&_nc_cat=103&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=127cfc&_nc_ohc=Dxfd3piEAKgQ7kNvwGXVDBC&_nc_oc=AdqTIqB1NXBb7G2s-_Q8xqnQa6on4X8MJk8CkHCsdQbhV6eyTnaAPwfv4FvWJBjn1KA&_nc_zt=23&_nc_ht=scontent.fmnl17-3.fna&_nc_gid=H6bLqWbTWEb7cMKmro2RgA&_nc_ss=7b2a8&oh=00_AQTgWAVdqZR2DTmlv2HxyTDflvzdKg1T3bZQbh0AY5OdnQ&oe=6B02635B", 
+desc: "A fearsome, heavily armored dragon with massive horns, razor-sharp teeth, and intricate scales, perched atop a rocky base. A stunning centerpiece for any fantasy tabletop encounter.", material: "Craftsman DLP Resin", size: "32mm" },
+  <!-- { name: "Dice Tower", category: "Gaming", price: 380, image: "https://example.com/photos/dicetower.jpg", -->
+    <!-- desc: "Tabletop dice tower with internal baffles for a fair, quiet roll.", material: "PLA", size: "16 cm tall" }, -->
+  <!-- { name: "Custom Name Keychain", category: "Gifts", price: 120, image: "https://example.com/photos/keychain.jpg", -->
+    <!-- desc: "Your name or a short word, in your choice of two colours.", material: "PLA", size: "6 cm" } -->
+];
+/* ============================================================ */
+
+const $ = (id) => document.getElementById(id);
+const fmt = (n) => SHOP.currency + Number(n).toLocaleString("en-US");
+
+function placeholder(label) {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+    <rect width="400" height="300" fill="#9fb3b0" fill-opacity=".35"/>
+    <g stroke="#6b8581" stroke-width="2" fill="none" stroke-opacity=".8">
+      <path d="M150 170 L200 140 L250 170 L200 200 Z"/><path d="M150 170 V205 L200 235 V200"/><path d="M250 170 V205 L200 235"/>
+    </g>
+    <text x="200" y="272" font-family="sans-serif" font-size="14" text-anchor="middle" fill="#4f6764">${label.replace(/[<&>]/g, "")}</text>
+  </svg>`;
+  return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+}
+
+function inquiryLinks(name) {
+  const msg = encodeURIComponent("Hi, I'm interested in the " + name + ". Is it available?");
+  const out = [];
+  if (SHOP.facebook) out.push({ label: "Ask on Facebook", href: SHOP.facebook });
+  else if (SHOP.viber) out.push({ label: "Ask on Viber", href: `viber://chat?number=%2B${SHOP.viber}&draft=${msg}` });
+  else if (SHOP.email) out.push({ label: "Ask by email", href: `mailto:${SHOP.email}?subject=${encodeURIComponent(name)}&body=${msg}` });
+  return out[0];
+}
+
+function render(filter) {
+  const grid = $("grid");
+  grid.textContent = "";
+  PRODUCTS.filter(p => filter === "All" || p.category === filter).forEach(p => {
+    const card = document.createElement("article");
+    card.className = "card";
+
+    const photo = document.createElement("div");
+    photo.className = "photo";
+    const list = (p.images && p.images.length) ? p.images : [p.image || ""];
+    const img = document.createElement("img");
+    img.alt = p.name;
+    img.loading = "lazy";
+    img.referrerPolicy = "no-referrer";
+    const show = (url) => {
+      img.onerror = () => { img.onerror = null; img.src = placeholder(p.name); };
+      img.src = url || placeholder(p.name);
+    };
+    show(list[0]);
+    photo.appendChild(img);
+
+    let thumbs = null;
+    if (list.length > 1) {
+      thumbs = document.createElement("div");
+      thumbs.className = "thumbs";
+      list.forEach((url, i) => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.setAttribute("aria-label", p.name + " photo " + (i + 1));
+        b.setAttribute("aria-current", i === 0 ? "true" : "false");
+        const t = document.createElement("img");
+        t.alt = "";
+        t.loading = "lazy";
+        t.referrerPolicy = "no-referrer";
+        t.onerror = () => { t.onerror = null; t.src = placeholder(p.name); };
+        t.src = url || placeholder(p.name);
+        b.appendChild(t);
+        b.addEventListener("click", () => {
+          show(url);
+          thumbs.querySelectorAll("button").forEach(x => x.setAttribute("aria-current", x === b ? "true" : "false"));
+        });
+        thumbs.appendChild(b);
+      });
+    }
+
+    const body = document.createElement("div");
+    body.className = "body";
+    const row = document.createElement("div");
+    row.className = "row";
+    const h = document.createElement("h3"); h.textContent = p.name;
+    const price = document.createElement("span"); price.className = "price"; price.textContent = fmt(p.price);
+    row.append(h, price);
+
+    const desc = document.createElement("p"); desc.className = "desc"; desc.textContent = p.desc;
+    const specs = document.createElement("ul"); specs.className = "specs";
+    [p.material, p.size].filter(Boolean).forEach(s => { const li = document.createElement("li"); li.textContent = s; specs.appendChild(li); });
+
+    body.append(row, desc, specs);
+    const link = inquiryLinks(p.name);
+    if (link) {
+      const spacer = document.createElement("div"); spacer.className = "spacer";
+      const a = document.createElement("a");
+      a.className = "btn"; a.href = link.href; a.textContent = link.label;
+      if (link.href.startsWith("http")) { a.target = "_blank"; a.rel = "noopener"; }
+      body.append(spacer, a);
+    }
+    if (thumbs) card.append(photo, thumbs, body); else card.append(photo, body);
+    grid.appendChild(card);
+  });
+}
+
+function init() {
+  document.title = SHOP.name;
+  $("brand").textContent = SHOP.name;
+  $("headline").textContent = SHOP.headline;
+  $("subline").textContent = SHOP.subline;
+  $("note").textContent = SHOP.note;
+
+  const cats = ["All", ...new Set(PRODUCTS.map(p => p.category))];
+  const box = $("filters");
+  cats.forEach((c, i) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "chip"; b.textContent = c;
+    b.setAttribute("aria-pressed", i === 0 ? "true" : "false");
+    b.addEventListener("click", () => {
+      box.querySelectorAll(".chip").forEach(x => x.setAttribute("aria-pressed", x === b ? "true" : "false"));
+      render(c);
+    });
+    box.appendChild(b);
+  });
+
+  const contacts = $("contacts");
+  const add = (label, href, primary) => {
+    const a = document.createElement("a");
+    a.className = primary ? "btn" : "btn ghost"; a.href = href; a.textContent = label;
+    if (href.startsWith("http")) { a.target = "_blank"; a.rel = "noopener"; }
+    contacts.appendChild(a);
+  };
+  if (SHOP.viber) add("Viber", "viber://chat?number=%2B" + SHOP.viber, true);
+  if (SHOP.email) add("Email", "mailto:" + SHOP.email, !SHOP.viber);
+  if (SHOP.facebook) add("Facebook", SHOP.facebook, false);
+
+  render("All");
+}
+init();
+</script>
+</body>
+</html>
